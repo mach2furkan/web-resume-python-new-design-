@@ -1,0 +1,92 @@
+from		flask import Flask, render_template, request, send_file
+		from werkzeug.utils import secure_filename
+		from reportlab.pdfgen import canvas
+		from reportlab.lib.pagesizes import letter
+		from reportlab.lib.utils import ImageReader
+		from io import BytesIO
+		import os
+
+		app = Flask(__name__)
+app.secret_key = 'secret_key'
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER)
+:
+	os.makedirs(UPLOAD_FOLDER)
+
+def create_pdf(data, profile_picture = None):
+	buffer = BytesIO()
+	pdf = canvas.Canvas(buffer, pagesize = letter)
+	pdf.setFont("Helvetica", 12)
+
+#Başlık
+	pdf.setFont("Helvetica-Bold", 16)
+	pdf.drawCentredString(300, 750, "Curriculum Vitae")
+
+#Profil Fotoğrafı
+if profile_picture:
+	pdf.drawImage(ImageReader(profile_picture), 450, 600, width = 100, height = 100)
+
+#Kullanıcı bilgileri
+		y_position = 700
+		pdf.setFont("Helvetica", 12)
+		for key,	value in data.items()
+	:
+					pdf.drawString(50, y_position, f "{key}: {value}")
+					y_position -= 20
+
+					pdf.save()
+					buffer.seek(0)
+					return buffer
+
+			@		app.route("/", methods =["GET", "POST"])
+			def index():
+	if		request.method == "POST":
+#Form verilerini al
+					full_name = request.form.get("fullName")
+						email = request.form.get("email")
+						skills = request.form.get("skills")
+						languages = request.form.get("languages")
+						experience = request.form.get("experience")
+						references = request.form.get("references")
+						certifications = request.form.get("certifications")
+						achievements = request.form.get("achievements")
+						hobbies = request.form.get("hobbies")
+
+#Profil fotoğrafını al ve kaydet
+						profile_picture = request.files.get("profilePicture")
+						profile_pic_path = None
+		if		profile_picture and profile_picture.filename:
+						filename = secure_filename(profile_picture.filename)
+							profile_pic_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+							profile_picture.save(profile_pic_path)
+
+#PDF verilerini hazırla
+							data = {
+			"Full Name":	full_name,
+			"Email":		email,
+			"Skills":		skills,
+			"Languages":		languages,
+			"Experience":		experience,
+			"References":		references,
+			"Certifications":	certifications,
+			"Achievements":		achievements,
+			"Hobbies":		hobbies,
+					}
+
+#PDF oluştur
+pdf_buffer = create_pdf(data, profile_pic_path)
+
+#PDF dosyasını indirme olarak döndür
+return send_file(
+		 pdf_buffer,
+		 as_attachment = True,
+		 download_name = "cv.pdf",
+		 mimetype = "application/pdf"
+)
+
+return render_template("index.html")
+
+if __name__
+== "__main__":

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: white;
+            overflow-x: hidden;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+        .nebula {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(63, 94, 251, 0.8), rgba(252, 70, 107, 0.3));
+            mix-blend-mode: screen;
+            z-index: -1;
+            animation: rotateNebula 20s linear infinite;
+        }
+        @keyframes rotateNebula {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .galaxy-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: radial-gradient(circle at center, #000000, #1a1a1a, #ffffff);
+            animation: galaxyPulse 5s infinite alternate;
+        }
+        @keyframes galaxyPulse {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -4;
+            background: black;
+            overflow: hidden;
+        }
+        .stars span {
+            position: absolute;
+            display: block;
+            width: 2px;
+            height: 2px;
+            background: white;
+            animation: twinkling 2s infinite ease-in-out;
+        }
+        @keyframes twinkling {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            animation: shootingStar 5s linear infinite;
+        }
+        @keyframes shootingStar {
+            from {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            to {
+                transform: translate(300px, -300px) scale(0.5);
+                opacity: 0;
+            }
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            z-index: 1;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .navigation-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .navigation-buttons button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .navigation-buttons button:hover {
+            background-color: #0056b3;
+        }
+        .social-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .social-links a {
+            margin: 0 10px;
+            color: #2c3e50;
+            font-size: 20px;
+            text-decoration: none;
+        }
+        .social-links a:hover {
+            color: #007BFF;
+        }
+        .animated-heading {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+            color: #FFD700;
+            animation: glow 1s infinite alternate;
+        }
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
+            }
+            to {
+                text-shadow: 0 0 20px #FF4500, 0 0 30px #FF4500;
+            }
+        }
+        .rotating-quote {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #FFD700;
+            font-size: 20px;
+            font-style: italic;
+            animation: rotateQuote 7s linear infinite;
+        }
+        @keyframes rotateQuote {
+            from {
+                transform: translateX(-50%) rotate(0deg);
+            }
+            to {
+                transform: translateX(-50%) rotate(360deg);
+            }
+        }
+        .scientific-quote {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #2c3e50;
+            text-shadow: 0 0 10px #2c3e50, 0 0 20px #2c3e50;
+        }
+        .input-neon {
+            border: none;
+            outline: none;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #2c3e50;
+            font-size: 16px;
+            border-bottom: 2px solid #2c3e50;
+            box-shadow: 0 0 5px #2c3e50;
+        }
+        .tooltip {
+            position: fixed;
+            bottom: 10%;
+            right: 10px;
+            background: #444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .tooltip:hover .tooltiptext {
+            display: block;
+        }
+        .tooltiptext {
+            display: none;
+            background: white;
+            color: black;
+            padding: 5px;
+            border-radius: 3px;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            white-space: nowrap;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #2c3e50;
+        }
+        .download-pdf {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .download-pdf button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .download-pdf button:hover {
+            background-color: #218838;
+        }
+        .testimonials {
+            margin-top: 20px;
+            color: #2c3e50;
+        }
+        .testimonials h3 {
+            text-align: center;
+        }
+        .testimonials ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .testimonials ul li {
+            background: rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .contact-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .contact-section input, .contact-section textarea {
+            margin: 10px 0;
+            padding: 10px;
+            width: 80%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .contact-section button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .contact-section button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="nebula"></div>
+<div class="galaxy-animation"></div>
+<div class="stars">
+    <span class="shooting-star"></span>
+</div>
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+<div class="container galactic-border">
+    <div class="animated-heading">Welcome to Isu cv builder  buddy !</div>
+    <h1>Create Your CV</h1>
+    <div class="avatar-preview">
+        <img id="avatarPreview" src="" alt="Profile Picture Preview" style="display: none;">
+    </div>
+    <form id="cvForm" method="POST" enctype="multipart/form-data">
+        <div class="page active" id="page1">
+            <h2>Page 1</h2>
+            <label for="profilePicture">1. Profile Picture</label>
+            <input type="file" id="profilePicture" name="profilePicture" accept="image/*" class="input-neon"><br>
+
+            <label for="fullName">2. Full Name</label>
+            <input type="text" id="fullName" name="fullName" required class="input-neon"><br>
+
+            <label for="email">3. Email</label>
+            <input type="text" id="email" name="email" required class="input-neon"><br>
+            <label for="skills">4. Skills</label>
+            <textarea id="skills" name="skills" required class="input-neon"></textarea><br>
+
+            <label for="languages">5. Languages</label>
+            <textarea id="languages" name="languages" class="input-neon"></textarea><br>
+        </div>
+        <div class="page" id="page2">
+            <h2>Page 2</h2>
+            <label for="experience">6. Experience</label>
+            <textarea id="experience" name="experience" class="input-neon"></textarea><br>
+
+            <label for="references">7. References</label>
+            <textarea id="references" name="references" class="input-neon"></textarea><br>
+
+            <label for="certifications">8. Certifications</label>
+            <textarea id="certifications" name="certifications" class="input-neon"></textarea><br>
+
+            <label for="achievements">9. Achievements</label>
+            <textarea id="achievements" name="achievements" class="input-neon"></textarea><br>
+
+            <label for="hobbies">10. Hobbies</label>
+            <textarea id="hobbies" name="hobbies" class="input-neon"></textarea><br>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar"><span id="progress" style="width: 0%;"></span></div>
+        </div>
+        <div class="navigation-buttons">
+            <button type="button" id="prevBtn" title="Go to the previous page">Previous</button>
+            <button type="button" id="nextBtn" title="Go to the next page">Next</button> 
+            <div class="download-pdf"></div>
+            <button type="submit" id="submitBtn" title="Submit your CV">Download as PDF</button>
+        </div>
+    </form>   
+    <div class="testimonials">
+        <h3>User Testimonials</h3>
+        <ul>
+            <li>"This CV builder is amazing!" - FURKAN ASKIN</li>
+            <li>"I created my CV in minutes!" - UMUT ALTINOK</li>
+            <li>"Highly recommend this to everyone!" - BERKANT POLAT </li>
+        </ul>
+    </div>
+    <div class="feedback-section">
+        <h3>Leave Feedback</h3>
+        <textarea placeholder="Your feedback..." class="input-neon"></textarea>
+        <button>Submit Feedback</button>
+    </div>
+    <div class="contact-section">
+        <h3>Contact Us</h3>
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Your Email" required>
+        <textarea placeholder="Your Message" rows="4" required></textarea>
+        <button>Send Message</button>
+    </div>
+    <div class="social-links">
+        <a href="https://www.linkedin.com/in/furkanasknn/" target="_blank">LinkedIn</a>
+        <a href="https://github.com/" target="_blank">GitHub</a>
+
+    </div>
+</div>
+<div class="tooltip">
+    Need Help?
+    <span class="tooltiptext">Contact support for assistance!</span>
+</div>
+<div class="footer">
+    © 2025 CV Creator. All rights reserved by Furkan/berkant /umut
+</div>
+<script>
+    function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarPreview = document.getElementById('avatarPreview');
+                avatarPreview.src = e.target.result;
+                avatarPreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        body.classList.toggle('light-theme');
+        if (body.classList.contains('light-theme')) {
+            body.style.backgroundColor = 'white';
+            body.style.color = 'black';
+        } else {
+            body.style.backgroundColor = 'black';
+            body.style.color = 'white';
+        }
+    }
+
+    const pages = document.querySelectorAll('.page');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const progress = document.getElementById('progress');
+    let currentPage = 0;
+
+    function updatePage() {
+        pages.forEach((page, index) => {
+            page.classList.toggle('active', index === currentPage);
+        });
+
+        prevBtn.style.display = currentPage === 0 ? 'none' : 'inline-block';
+        nextBtn.style.display = currentPage === pages.length - 1 ? 'none' : 'inline-block';
+        submitBtn.style.display = currentPage === pages.length - 1 ? 'inline-block' : 'none';
+
+        // Update progress bar
+        progress.style.width = ((currentPage + 1) / pages.length) * 100 + '%';
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 0) {
+            currentPage--;
+            updatePage();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentPage < pages.length - 1) {
+            currentPage++;
+            updatePage();
+        }
+    });
+
+    function downloadPDF() {
+        alert('Downloading PDF is not implemented yet!');
+    }
+
+    function createStars() {
+        const starsContainer = document.getElementById('stars');
+        if (!starsContainer) {
+            console.error('Element with id "stars" not found.');
+            return;
+        }
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('span');
+            star.style.position = 'absolute';
+            star.style.width = '2px';
+            star.style.height = '2px';
+            star.style.backgroundColor = 'white';
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animation = `twinkling ${Math.random() * 2 + 1}s infinite ease-in-out`;
+            starsContainer.appendChild(star);
+        }
+    }
+
+
+    createStars();
+        updatePage();
+</script>
+</body>
+</html>
